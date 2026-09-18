@@ -1,0 +1,83 @@
+
+Patient summary
+-------------------
+http://10.1.1.22:8080/openmrs/ws/rest/v1/kenyaemr/patientSummary?patientUuid=2f6a67aa-5dab-11eb-8b75-1cc1de1a8bbc
+-------------------
+
+Search a patient
+-------------------
+
+
+http://10.1.1.22:8080/openmrs/ws/rest/v1/patient?q=1290509302&v=custom%3A%28patientId%2Cuuid%2Cvoided%2Cidentifiers%2Cdisplay%2CpatientIdentifier%3A%28uuid%2Cidentifier%29%2Cperson%3A%28gender%2Cage%2Cbirthdate%2CbirthdateEstimated%2CpersonName%2Caddresses%2Cdisplay%2Cdead%2CdeathDate%29%2Cattributes%3A%28value%2CattributeType%3A%28uuid%2Cdisplay%29%29%29&includeDead=true&limit=10&totalCount=true
+
+------------------------
+
+Encounter History
+
+http://10.1.1.22:8080/openmrs/ws/fhir2/R4/Encounter?_query=encountersWithMedicationRequests&patientSearchTerm=MGY7L7&status=active&_summary=data&_getpagesoffset=0&_count=10
+
+-------------------
+
+Drug Order
+
+http://10.1.1.22:8080/openmrs/ws/rest/v1/order?patient=2f6a67aa-5dab-11eb-8b75-1cc1de1a8bbc&careSetting=6f0c9a92-6f24-11e3-af88-005056821db0&orderTypes=131168f4-15f5-102d-96e4-000c29c2a5d7&v=custom:(uuid,dosingType,orderNumber,accessionNumber,patient:ref,action,careSetting:ref,previousOrder:ref,dateActivated,scheduledDate,dateStopped,autoExpireDate,orderType:ref,encounter:(uuid,display,visit),orderer:(uuid,display,person:(display)),orderReason,orderReasonNonCoded,orderType,urgency,instructions,commentToFulfiller,fulfillerStatus,drug:(uuid,display,strength,dosageForm:(display,uuid),concept),dose,doseUnits:ref,frequency:ref,asNeeded,asNeededCondition,quantity,quantityUnits:ref,numRefills,dosingInstructions,duration,durationUnits:ref,route:ref,brandName,dispenseAsWritten,concept)&excludeDiscontinueOrders=true
+
+----------------
+
+Visit summary
+
+http://10.1.1.22:8080/openmrs/ws/rest/v1/kenyaemr/visitSummary?visitUuid=59dd2fae-5718-4633-821e-26a731d2026c
+
+--------------------------
+Risk score and adherence
+
+
+http://10.1.1.22:8080/openmrs/ws/rest/v1/keml/patientiitscore?patientUuid=2f6a67aa-5dab-11eb-8b75-1cc1de1a8bbc
+
+-------------------------
+see visit
+
+http://10.1.1.22:8080/openmrs/ws/rest/v1/visit?patient=c6a267e1-5dab-11eb-8b75-1cc1de1a8bbc&v=custom:(visitType:(uuid,name,display),uuid,encounters:(uuid,diagnoses:(uuid,display,rank,diagnosis),form:(uuid,display),encounterDatetime,orders:full,obs:(uuid,concept:(uuid,display,conceptClass:(uuid,display)),display,groupMembers:(uuid,concept:(uuid,display),value:(uuid,display),display),value,obsDatetime),encounterType:(uuid,display,viewPrivilege,editPrivilege),encounterProviders:(uuid,display,encounterRole:(uuid,display),provider:(uuid,person:(uuid,display)))),visitType:(uuid,name,display),startDatetime,stopDatetime,patient,attributes:(attributeType:ref,display,uuid,value)&limit=undefined
+-----------------
+
+Defaulter tracing
+
+http://10.1.1.22:8080/openmrs/ws/rest/v1/encounter?encounterType=1495edf8-2df2-11e9-b210-d663bd873d93&patient=c6a267e1-5dab-11eb-8b75-1cc1de1a8bbc&v=custom:(uuid,encounterDatetime,encounterType,location:(uuid,name),patient:(uuid,display),encounterProviders:(uuid,provider:(uuid,name)),obs:(uuid,obsDatetime,voided,groupMembers,concept:(uuid,name:(uuid,name)),value:(uuid,name:(uuid,name),names:(uuid,conceptNameType,name))),form:(uuid,name))
+
+---------------------
+HTS testing
+
+http://10.1.1.22:8080/openmrs/ws/rest/v1/encounter?encounterType=9c0a7a57-62ff-4f75-babe-5835b0e921b7&patient=0446b6f8-1acc-4185-b6b1-553ce1c3d06d&v=custom:(uuid,encounterDatetime,encounterType,location:(uuid,name),patient:(uuid,display),encounterProviders:(uuid,provider:(uuid,name)),obs:(uuid,obsDatetime,voided,groupMembers,concept:(uuid,name:(uuid,name)),value:(uuid,name:(uuid,name),names:(uuid,conceptNameType,name))),form:(uuid,name))
+
+http://10.1.1.22:8080/openmrs/ws/rest/v1/encounter?encounterType=1495edf8-2df2-11e9-b210-d663bd873d93&patient=0446b6f8-1acc-4185-b6b1-553ce1c3d06d&v=custom:(uuid,encounterDatetime,encounterType,location:(uuid,name),patient:(uuid,display),encounterProviders:(uuid,provider:(uuid,name)),obs:(uuid,obsDatetime,voided,groupMembers,concept:(uuid,name:(uuid,name)),value:(uuid,name:(uuid,name),names:(uuid,conceptNameType,name))),form:(uuid,name))
+
+http://10.1.1.22:8080/openmrs/ws/rest/v1/encounter?encounterType=9c0a7a57-62ff-4f75-babe-5835b0e921b7&patient=0446b6f8-1acc-4185-b6b1-553ce1c3d06d&v=custom:(uuid,encounterDatetime,encounterType,location:(uuid,name),patient:(uuid,display),encounterProviders:(uuid,provider:(uuid,name)),obs:(uuid,obsDatetime,voided,groupMembers,concept:(uuid,name:(uuid,name)),value:(uuid,name:(uuid,name),names:(uuid,conceptNameType,name))),form:(uuid,name))
+
+testing history
+http://10.1.1.22:8080/openmrs/ws/rest/v1/encounter?encounterType=9c0a7a57-62ff-4f75-babe-5835b0e921b7&patient=0446b6f8-1acc-4185-b6b1-553ce1c3d06d&v=custom:(uuid,encounterDatetime,encounterType,location:(uuid,name),patient:(uuid,display),encounterProviders:(uuid,provider:(uuid,name)),obs:(uuid,obsDatetime,voided,groupMembers,concept:(uuid,name:(uuid,name)),value:(uuid,name:(uuid,name),names:(uuid,conceptNameType,name))),form:(uuid,name))
+
+HTS_FIELDS = {
+    "Result of HIV test": "hiv_result",
+    "HIV test performed": "test_performed",
+    "Received HIV test result": "received_result",
+    "HIV testing services strategy": "testing_strategy",
+    "Provider type": "provider_type",
+    "Patient tested as": "testing_type",
+    "Reasons for Referral": "referral_reason",
+    "Tuberculosis disease status": "tb_status",
+    "Health facility name": "facility",
+    "Facility of HIV Care": "hiv_care_facility",
+    "Date enrolled in HIV care": "hiv_care_enrollment_date",
+    "Antiretroviral treatment start date": "art_start_date",
+    "Comprehensive care center number": "ccc_number",
+    "General examination (text)": "clinical_note",
+}
+
+
+----------------------
+
+tracing
+
+http://10.1.1.22:8080/openmrs/ws/rest/v1/encounter?encounterType=1495edf8-2df2-11e9-b210-d663bd873d93&patient=0446b6f8-1acc-4185-b6b1-553ce1c3d06d&v=custom:(uuid,encounterDatetime,encounterType,location:(uuid,name),patient:(uuid,display),encounterProviders:(uuid,provider:(uuid,name)),obs:(uuid,obsDatetime,voided,groupMembers,concept:(uuid,name:(uuid,name)),value:(uuid,name:(uuid,name),names:(uuid,conceptNameType,name))),form:(uuid,name))
+
+-----------------------

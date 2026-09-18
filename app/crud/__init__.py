@@ -1,0 +1,23 @@
+from app import models
+from app.crud.base import CRUDBase
+
+counties = CRUDBase(models.Counties)
+education_levels = CRUDBase(models.EducationLevels)
+marital_statuses = CRUDBase(models.MaritalStatuses)
+discontinuation_reasons = CRUDBase(models.DiscontinuationReasons)
+fp_methods = CRUDBase(models.FPMethods)
+database_metadata = CRUDBase(models.DatabaseMetadata)
+subcounties = CRUDBase(models.Subcounties)
+facilities = CRUDBase(models.Facilities)
+clients = CRUDBase(models.Clients)
+encounters = CRUDBase(models.Encounters)
+counselling_sessions = CRUDBase(models.CounsellingSessions)
+reproductive_history = CRUDBase(models.ReproductiveHistory)
+fp_method_advantages = CRUDBase(models.FPMethodAdvantages)
+fp_method_cautions = CRUDBase(models.FPMethodCautions)
+fp_method_side_effects = CRUDBase(models.FPMethodSideEffects)
+fp_method_use_instructions = CRUDBase(models.FPMethodUseInstructions)
+fp_usage_episodes = CRUDBase(models.FPUsageEpisodes)
+fp_dispensing = CRUDBase(models.FPDispensing)
+followups = CRUDBase(models.Followups)
+side_effect_reports = CRUDBase(models.SideEffectReports)

@@ -1,0 +1,109 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+.idea/
+.vscode/
+*.log
+
+# -----------------------------
+# Python
+# -----------------------------
+*$py.class
+
+# Virtual environments
+env/
+ENV/
+
+# -----------------------------
+# Flask
+# -----------------------------
+instance/
+.webassets-cache
+
+# Flask environment files
+.env.*
+!.env.example
+
+# -----------------------------
+# Logs
+# -----------------------------
+logs/
+
+# -----------------------------
+# Database files
+# -----------------------------
+*.db
+*.sqlite
+*.sqlite3
+
+# -----------------------------
+# IDE / Editors
+# -----------------------------
+*.swp
+*.swo
+
+# -----------------------------
+# OS files
+# -----------------------------
+.DS_Store
+Thumbs.db
+
+# -----------------------------
+# Testing / Coverage
+# -----------------------------
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# -----------------------------
+# Build / Packaging
+# -----------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# -----------------------------
+# Type checking / linting
+# -----------------------------
+.mypy_cache/
+.ruff_cache/
+
+# -----------------------------
+# Jupyter
+# -----------------------------
+.ipynb_checkpoints/
+
+# -----------------------------
+# Temporary files
+# -----------------------------
+*.tmp
+*.temp
+*.bak
+
+# -----------------------------
+# Local config / secrets
+# -----------------------------
+config.local.py
+secrets.json
+credentials.json
+*.pem
+*.key
+
+# -----------------------------
+# Uploads / generated files
+# -----------------------------
+uploads/
+tmp/
+temp/
+
+# -----------------------------
+# Docker override fil
+# -----------------------------
+docker-compose.override.yml
