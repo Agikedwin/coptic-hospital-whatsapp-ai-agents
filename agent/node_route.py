@@ -12,6 +12,7 @@ from utilty.utilities import SYSTEM_PROMPT, summary_model, model
 
 def agent_node(state: AgentState) -> dict[str, list[BaseMessage]]:
 
+    """
     memory_context = state["memory_context"]
 
     system_message = SystemMessage(
@@ -21,10 +22,11 @@ def agent_node(state: AgentState) -> dict[str, list[BaseMessage]]:
             else "No saved memory yet."
         )
     )
+    """
 
     response = model.bind_tools(TOOLS).invoke(
         [
-            system_message,
+            #system_message,
             *state["messages"]
         ]
     )
@@ -61,7 +63,7 @@ async  def finalize_node(state: AgentState) -> dict[str, Any]:
             SystemMessage(
                 content=(
                     "Summarize the current chat and extract only durable facts that are useful across future sessions. "
-                    "Extremely minimum database results, always store client IDs including Base FP info, only store facts not yet stored before\n\n"
+                    "Extremely minimum database results, always store client  unique identifiers and phone numbers only. Only store Identifiers not yet stored before\n\n"
                     f"Existing long-term memory:\n{memory_context}"
                 )
             ),
@@ -79,7 +81,7 @@ async  def finalize_node(state: AgentState) -> dict[str, Any]:
         client_id=int(state["client_id"]),
         session_id=state["session_id"],
         summary=extraction.summary,
-        memory=merged_memory[-5:],
+        memory=merged_memory[-2:],
     )
 
 

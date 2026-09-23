@@ -1,9 +1,10 @@
 
 from fastapi import APIRouter, Request, HTTPException, Query, BackgroundTasks
-
+import asyncio
 
 from agent.agent import run_chat
-from whatsapp.whatsapp_service import send_whatsapp_message
+from whatsapp.whatsapp_service import ( send_whatsapp_message,send_typing_indicator,keep_typing )
+
 from app import schemas
 from app.schemas import ChatMessages
 
@@ -81,7 +82,8 @@ async def process_whatsapp_message(data: dict):
 
     message = messages[0]
 
-    from_number = message["from"]
+    from_number = message.get("from")
+    message_id = message.get("id")
 
     user_text = message.get("text", {}).get("body")
 
@@ -107,13 +109,134 @@ async def process_whatsapp_message(data: dict):
             content=user_text
         )
     ]
-    response = await  run_chat(messages=user_text, session_id=from_number, client_id=from_number)
+    #response = await  run_chat(messages=user_text, session_id=from_number, client_id=from_number)
 
 
-    result = schemas.ChatResponse(message=response, session_id=from_number)
+    #result = schemas.ChatResponse(message=response, session_id=from_number)
 
     # send response
-    return await send_whatsapp_message(to=from_number, body = result.message)
+    #return await send_whatsapp_message(to=from_number, body = result.message)
+
+    typing_task = None
+
+    try:
+
+        if message_id:
+            typing_task = asyncio.create_task(
+                keep_typing(
+                    message_id
+                )
+            )
+
+        # ====================================================
+        # PREPARE MESSAGE FOR AI AGENT
+        # ====================================================
+
+        chat_messages = [
+
+            ChatMessages(
+                role="user",
+                content=user_text
+            )
+
+        ]
+
+        # ====================================================
+        # RUN AI AGENT
+        # ====================================================
+
+        print(
+            "Running AI agent..."
+        )
+
+        response = await run_chat(
+            messages=chat_messages,
+            session_id=from_number,
+            client_id=from_number
+        )
+
+        print(
+            "AI response generated"
+        )
+
+        result = schemas.ChatResponse(
+            message=response,
+            session_id=from_number
+        )
+
+        # ====================================================
+        # STOP REFRESHING TYPING
+        # ====================================================
+
+        if typing_task:
+
+            typing_task.cancel()
+
+            try:
+
+                await typing_task
+
+            except asyncio.CancelledError:
+
+                pass
+
+        # ====================================================
+        # SEND AI RESPONSE
+        # ====================================================
+
+        whatsapp_response = (
+            await send_whatsapp_message(
+                to=from_number,
+                body=result.message
+            )
+        )
+
+        return whatsapp_response
+
+    # ========================================================
+    # ERROR HANDLING
+    # ========================================================
+
+    except Exception as e:
+
+        print(
+            "❌ Error processing WhatsApp message:",
+            str(e)
+        )
+
+        # Stop typing indicator refresh
+        if typing_task:
+
+            typing_task.cancel()
+
+            try:
+
+                await typing_task
+
+            except asyncio.CancelledError:
+
+                pass
+
+        # Send user-friendly error message
+        try:
+
+            return await send_whatsapp_message(
+                to=from_number,
+                body=(
+                    "Sorry, I was unable to process "
+                    "your request at the moment. "
+                    "Please try again."
+                )
+            )
+
+        except Exception as send_error:
+
+            print(
+                "❌ Could not send error message:",
+                str(send_error)
+            )
+
+            return
 
 
 @router.get("/webhook")
