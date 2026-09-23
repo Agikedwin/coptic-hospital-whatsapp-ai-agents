@@ -1451,4 +1451,4 @@ Before clinical functionality is deployed in production:
 * WhatsApp messaging workflows must comply with the rules in force
 * Clinical and technical monitoring must be enabled
 
-Production deployment should proceed incrementally, beginning with a small number of well-controlled, high-value use cases.
+
