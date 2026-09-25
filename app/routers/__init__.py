@@ -21,6 +21,7 @@ from app.routers.followups import router as followups_router
 from app.routers.side_effect_reports import router as side_effect_reports_router
 from app.routers.clinical import router as clinical_router
 from whatsapp.webhook import router as webhook_router
+from telegram.telegram_routes import router as telegram_router
 
 all_routers = [
     chats_router,
@@ -45,5 +46,6 @@ all_routers = [
     followups_router,
     side_effect_reports_router,
     clinical_router,
-    webhook_router
+    webhook_router,
+    telegram_router
 ]

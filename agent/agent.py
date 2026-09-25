@@ -264,11 +264,11 @@ async def run_chat(
 
 
         "session_id":
-            session_id #,
+            session_id ,
 
 
-        #"memory_context":
-        #    memory_context
+        "memory_context":
+            memory_context
 
         }
 

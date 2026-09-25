@@ -12,7 +12,6 @@ from utilty.utilities import SYSTEM_PROMPT, summary_model, model
 
 def agent_node(state: AgentState) -> dict[str, list[BaseMessage]]:
 
-    """
     memory_context = state["memory_context"]
 
     system_message = SystemMessage(
@@ -22,14 +21,16 @@ def agent_node(state: AgentState) -> dict[str, list[BaseMessage]]:
             else "No saved memory yet."
         )
     )
-    """
 
-    response = model.bind_tools(TOOLS).invoke(
+
+
+    response = model.bind_tools(TOOLS, tool_choice="auto").invoke(
         [
-            #system_message,
+            system_message,
             *state["messages"]
         ]
     )
+    print("AT tool calls ::::::::::::::::::::::::::::::::::::::::2")
 
     return {
         "messages": [response]
@@ -78,7 +79,7 @@ async  def finalize_node(state: AgentState) -> dict[str, Any]:
     )
 
     save_session(
-        client_id=int(state["client_id"]),
+        client_id=state["client_id"],
         session_id=state["session_id"],
         summary=extraction.summary,
         memory=merged_memory[-2:],

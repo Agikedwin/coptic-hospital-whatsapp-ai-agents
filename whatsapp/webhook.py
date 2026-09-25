@@ -109,6 +109,7 @@ async def process_whatsapp_message(data: dict):
             content=user_text
         )
     ]
+
     #response = await  run_chat(messages=user_text, session_id=from_number, client_id=from_number)
 
 
@@ -144,10 +145,6 @@ async def process_whatsapp_message(data: dict):
         # ====================================================
         # RUN AI AGENT
         # ====================================================
-
-        print(
-            "Running AI agent..."
-        )
 
         response = await run_chat(
             messages=chat_messages,

@@ -19,3 +19,9 @@ unstructured
 unstructured[pdf]
 langchain-chroma
 langchain-huggingface
+langchain-ollama
+langchain
+langchain-anthropic
+langchain-google-genai
+langchain-groq
+pyTelegramBotAPI
