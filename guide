@@ -1,0 +1,104 @@
+git status
+git checkout -b my-branch-name
+git add .
+git commit -m "Update project"
+Push the branch to GitHub:
+
+git push -u origin my-branch-name
+
+After that, future pushes from the same branch can simply use:
+
+git push
+
+-------------------------
+If the branch already exists locally:
+
+git switch my-branch-name
+git add .
+git commit -m "Update project"
+git push
+--------------------------
+If the branch exists on GitHub but not locally:
+
+git fetch origin
+git switch -c my-branch-name --track origin/my-branch-name
+
+Then:
+
+git add .
+git commit -m "Update project"
+git push
+
+For example, if your branch is called portfolio-update:
+
+git switch -c portfolio-update
+git add .
+git commit -m "Improve portfolio website"
+git push -u origin portfolio-update
+
+===================================
+
+## Option 1: Run with your existing MySQL server
+
+### 1. Create a virtual environment
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+```
+#link https://developers.facebook.com/apps/961273237022140/use_cases/customize/wa-settings/?use_case_enum=WHATSAPP_BUSINESS_MESSAGING&product_route=whatsapp-business&business_id=1608810040642467&selected_tab=wa-settings
+
+### 2. Import the database (skip this if already imported)
+
+```bash
+mysql -u root -p < database/family_planning_fp_mysql.sql
+```
+
+or:
+
+```bash
+./scripts/import_db.sh
+```
+
+### 3. Configure credentials
+
+```bash
+cp .env .env
+```
+
+Edit `.env`:
+
+```dotenv
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=your_password
+MYSQL_DATABASE=family_planning_fp
+```
+
+### 4. Start FastAPI
+
+```bash
+uvicorn app.main:app --reload
+
+python build_vector_db.py
+```
+
+
+```bash
+## Expose the server to the public
+ngrok http 8000
+```
+
+Open:
+
+- Swagger UI: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
+- Health: http://127.0.0.1:8000/health
+
+- https://developers.facebook.com/apps/961273237022140/use_cases/customize/wa-dev-console/?use_case_enum=WHATSAPP_BUSINESS_MESSAGING&product_route=whatsapp-business&business_id=1608810040642467&selected_tab=wa-dev-console
+- https://developers.facebook.com/apps/1104039355981930/whatsapp-business/api-testing-v2/?business_id=2273437143196944
+===================================
