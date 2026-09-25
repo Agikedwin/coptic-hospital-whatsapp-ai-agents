@@ -1,11 +1,17 @@
+
+
+API KEYS LINKS
+https://console.groq.com/docs/quickstart
+https://console.groq.com/keys
+https://aistudio.google.com/api-keys?project=gen-lang-client-0914965680
+
 git status
 git checkout -b my-branch-name
 git add .
 git commit -m "Update project"
-Push the branch to GitHub:
 
-git push -u origin my-branch-name
-
+git push -u origin coptic-ai-agent
+====
 After that, future pushes from the same branch can simply use:
 
 git push
@@ -37,6 +43,50 @@ git commit -m "Improve portfolio website"
 git push -u origin portfolio-update
 
 ===================================
+
+gh pr create \
+  --base main \
+  --head "$(git branch --show-current)" \
+  --title "Whatsapp Typing indicator" \
+  --body "Added typing indicator to show while whatsapp is waiting for ai agent to run and return response."
+  ================================================
+
+  To merge your branch into main locally:
+
+git switch main
+git pull origin main
+git merge your-branch-name
+git push origin main
+
+For example:
+
+git switch main
+git pull origin main
+git merge portfolio-update
+git push origin main
+
+If you want to merge an existing GitHub pull request using GitHub CLI:
+
+gh pr merge
+
+Or specify a merge strategy:
+
+gh pr merge --merge
+
+Squash merge:
+
+gh pr merge --squash
+
+Rebase merge:
+
+gh pr merge --rebase
+
+If you're currently on the feature branch and want the cleanest workflow, I recommend merging the PR with:
+
+gh pr merge --squash --delete-branch
+
+That merges the PR into main and deletes the feature branch afterward.
+=======================================================================================
 
 ## Option 1: Run with your existing MySQL server
 

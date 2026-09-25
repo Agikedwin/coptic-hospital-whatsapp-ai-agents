@@ -5,6 +5,7 @@ from rag.vectore_db import retriever
 from typing import TypedDict, List
 from  langchain_openai import  ChatOpenAI
 from memory.memory import AgentState as SharedAgentState
+from llms.llm_ai import get_llm
 
 
 from dotenv import  load_dotenv
@@ -12,7 +13,14 @@ from dotenv import  load_dotenv
 load_dotenv()
 
 #llm = ChatGroq(model="gpt-5.6-luna", temperature=0,reasoning_effort="none") # only for hosted models
-llm = ChatOpenAI(model="gpt-5.6-luna", temperature=0,reasoning_effort="none")
+#llm = ChatOpenAI(model="gpt-5.6-luna", temperature=0,reasoning_effort="none")
+#llm = get_llm(provider="openai", model="gpt-5.6-luna")
+llm = get_llm( provider="groq", model="openai/gpt-oss-120b")
+#llm = get_llm(provider="anthropic", model="claude-sonnet-4-6")
+#llm = get_llm(provider="openai", model="gpt-5.6-luna")
+#llm = get_llm(provider="gemini", model="gemini-3.8-flash")
+
+
 
 class AgentState(TypedDict):
     question: str

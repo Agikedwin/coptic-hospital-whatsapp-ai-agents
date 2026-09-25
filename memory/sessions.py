@@ -51,7 +51,7 @@ def get_sessions_memory(client_id: str, limit: int):
 
 def save_session(
         *,
-        client_id: int,
+        client_id: str,
         session_id: str,
         summary: str,
         memory: list[str]

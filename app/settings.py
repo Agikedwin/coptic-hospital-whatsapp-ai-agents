@@ -41,6 +41,13 @@ class Settings(BaseSettings):
     # ---------------------------------------------------------
     sql_echo: bool
 
+    # ---------------------------------------------------------
+    # TELEGRAM
+    # ---------------------------------------------------------
+    telegram_api: str
+    telegram_webhook_secret: str
+    telegram_webhook_url: str
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

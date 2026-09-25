@@ -1,0 +1,120 @@
+Patient:
+What is my latest viral load?
+
+Coptic AI:
+I can help you access your result. To protect your
+privacy, I need to verify your identity first.
+
+[Verify my identity]
+
+Patient:
+Verify
+
+Coptic AI:
+We've sent a verification code to the contact
+registered on your Coptic patient record.
+
+Please enter the 6-digit code.
+
+Patient:
+482761
+
+Coptic AI:
+Thank you. Your identity has been verified.
+
+Your latest viral load result recorded on
+15 September 2026 is <50 copies/mL.
+
+Would you like an explanation of what this result means?
+
+================OTP=====================
+Patient asks:
+"What is my latest viral load?"
+        │
+        ▼
+Does this require patient information?
+        │
+       YES
+        ▼
+Find patient's REGISTERED phone in EMR
+        │
+        ▼
+Send 6-digit OTP to that registered number
+        │
+        ▼
+Patient replies: 482761
+        │
+        ▼
+Backend verifies OTP
+        │
+        ├── wrong → retry
+        │
+        └── correct
+              │
+              ▼
+       Mark this session VERIFIED
+              │
+              ▼
+       Allow protected medical tools
+
+
+ =============================================
+                  Patient message
+                       │
+                       ▼
+                    FREE
+                       │
+                       ▼
+              Does request require
+              personal information?
+                  /           \
+                NO             YES
+                │               │
+                ▼               ▼
+         Answer directly     Verified?
+                            /        \
+                          YES        NO
+                           │          │
+                           │        Send OTP
+                           │        ~KSh 0.52
+                           │          │
+                           └────┬─────┘
+                                ▼
+                         Produce ONE concise
+                          service response
+
+
+---------------------------
+                      COPTIC AI
+                         │
+            ┌────────────┴────────────┐
+            │                         │
+            ▼                         ▼
+       WhatsApp API               Telegram API
+            │                         │
+            ▼                         ▼
+ /api/v1/whatsapp/webhook   /api/v1/telegram/webhook
+            │                         │
+            └────────────┬────────────┘
+                         │
+                         ▼
+                    AI SERVICE
+                         │
+                         ▼
+                     run_chat()
+                         │
+                         ▼
+                    LangGraph
+                         │
+          ┌──────────────┼───────────────┐
+          │              │               │
+          ▼              ▼               ▼
+        Memory          Tools           LLM
+          │              │               │
+          └──────────────┼───────────────┘
+                         │
+                         ▼
+                       RAG
+                         │
+                         ▼
+                Coptic Knowledge
