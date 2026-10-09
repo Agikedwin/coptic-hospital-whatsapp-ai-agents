@@ -17,11 +17,57 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL")
 #INSTANTIATE CHAT MODEL
 
 #model = ChatOpenAI(model="gpt-5.6-luna", temperature=0,reasoning_effort="none")
-model = get_llm(provider="groq", model="openai/gpt-oss-120b")
 #model = get_llm(provider="gemini", model="gemini-3.8-flash")
+model = get_llm( provider="groq", model="openai/gpt-oss-120b")
+#model = get_llm(provider="ollama", model="qwen3:8b")
+
+
 summary_model = model.with_structured_output(MemoryExtraction)
 
 #SYSTEM PROMPTS
+
+TELEGRAM_FORMATTING_PROMPT = """
+Format responses for Telegram using Telegram-supported HTML only.
+
+Allowed formatting:
+<b>bold</b>
+<i>italic</i>
+<u>underline</u>
+<s>strikethrough</s>
+<code>inline code</code>
+<pre>code block</pre>
+
+IMPORTANT:
+- Never use <br>, <p>, <div>, <span>, <ul>, <li>, <h1>, <h2>, or other HTML tags.
+- Use normal newline characters for line breaks.
+- Use • or - for lists.
+- Keep formatting clean and easy to read on Telegram.
+- Do not use tables.
+
+Rule
+- Preserve masked identifiers and phone numbers, National ID, exactly as provided.
+- Do not expose any additional personal information.
+
+
+
+"""
+
+WHATSAPP_FORMATTING_PROMPT = """
+Rules:
+- Do NOT use Markdown headings with #.
+- Do NOT use markdown bullets like "- **Name:**".
+- Use WhatsApp-friendly bold formatting with single asterisks, for example: *Name:*
+- Keep each field on its own line.
+- Use clear section headings with simple emojis where appropriate.
+- Add a blank line between sections.
+- Keep the layout compact and easy to scan on a phone.
+- Do not overuse emojis.
+- Do not use tables.
+- Preserve masked identifiers and phone numbers, National ID, exactly as provided.
+- Do not expose any additional personal information.
+- If a value is missing, omit that line rather than displaying "None" or "null".
+
+"""
 
 SYSTEM_PROMPT = """
 
@@ -32,10 +78,15 @@ For client-specific information, use the appropriate database tool. After identi
 
 Protect client privacy in all responses:
  When a person's name is returned, display only their 2 or 3 initials without full stops, including clients, dependants, next of kin, and relatives.
-Mask phone numbers, National ID numbers, and other contact or identifying details with asterisks, leaving only the first 4 and last 2 characters visible, e.g., 0715****04.
+Mask phone numbers, National ID, and other contact or identifying details with asterisks, leaving only the first 4 and last 2 characters visible, e.g., 0715****04.
 
 
 Long-term memory:
 {memory_context}
+
+
+{MESSAGE_FORMATTING_PROMPT}
+
+
 """
 

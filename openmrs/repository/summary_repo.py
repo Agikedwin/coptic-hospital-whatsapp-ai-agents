@@ -8,9 +8,16 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-
+VALID_IDENTIFIER_TYPES = {
+                "Unique Patient Number",
+                "OpenMRS ID",
+                "PREP Unique Number",
+                "Patient Clinic Number",
+                "National ID",
+            }
 
 class KenyaEMRAPI:
+
 
     def __init__(
         self,
@@ -1506,12 +1513,23 @@ class KenyaEMRAPI:
                     "identifiers"
                 ]
             )
-            identifier = [
-                item["identifier"]
-                for item in patient_search_term
-                if item["identifier_type"] in ["Unique Patient Number","OpenMRS ID"]
-            ]
-            patient_identifier = identifier[0]
+
+
+            identifier = []
+
+            for item in patient_search_term:
+                identifier_type = item.get("identifier_type")
+                identifier_value = item.get("identifier")
+
+                if (
+                        identifier_type in VALID_IDENTIFIER_TYPES
+                        and identifier_value
+                ):
+                    identifier.append(identifier_value)
+
+            print("Identifiers:", identifier)
+
+            patient_identifier = identifier[0] if identifier else None
 
 
         params = {

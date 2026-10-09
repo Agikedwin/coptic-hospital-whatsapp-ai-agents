@@ -46,6 +46,8 @@ class SessionRecordRead(SessionBase):
 class ChatMessages(BaseModel):
     role: Literal["user", "assistant", "system"]
     content: Any
+    message_source: str
+
 
 
 

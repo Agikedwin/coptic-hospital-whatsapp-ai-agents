@@ -4,20 +4,21 @@ import logging
 
 from telebot.async_telebot import AsyncTeleBot
 
+from authentication.telegram_auth import get_authenticated_user, generate_otp, verify_otp, redis_client, create_session, \
+    verify_phone_number
+from memory.memory import AgentState
 from telegram.telegram_ai_service import process_ai_message
 
 logger = logging.getLogger(__name__)
 import asyncio
-
+from telebot import types
 
 
 def register_telegram_handlers(bot: AsyncTeleBot):
 
-
     # --------------------------------------------------
     # START COMMAND
     # --------------------------------------------------
-
     @bot.message_handler(commands=["start"])
     async def send_welcome(message):
 
@@ -67,6 +68,11 @@ def register_telegram_handlers(bot: AsyncTeleBot):
     async def handle_text_message(message):
 
         chat_id = message.chat.id
+        telegram_id = message.from_user.id
+        user_message = (message.text or "").strip()
+
+        if not user_message:
+            return
 
         user_id = (
             message.from_user.id
@@ -74,89 +80,233 @@ def register_telegram_handlers(bot: AsyncTeleBot):
             else chat_id
         )
 
-        user_message = message.text
+        # is user authenticated
+        auth_user = await get_authenticated_user(telegram_id)
+        if not auth_user:
+            print("AUTHENTICATED USER:", auth_user)
 
-        if not user_message:
+
+
+            # ==========================================
+            # CHECK IF USER IS SUBMITTING AN OTP
+            # ==========================================
+
+            otp_attempts = await redis_client.exists(
+                f"otp_attempts:{telegram_id}"
+            )
+
+            #verify OPTP and authenticate
+            if otp_attempts:
+
+                if user_message.isascii() and user_message.isdigit() and len(user_message) == 6:
+
+                    otp_valid = await verify_otp(telegram_id,user_message)
+
+                    if otp_valid:
+                        #Authenticate user
+                        await create_session(telegram_id, create_session)
+                        # Remove Secure Login button
+                        remove_keyboard = types.ReplyKeyboardRemove()
+
+                        await bot.send_message(
+                            chat_id,
+                            "✅ OTP verified. Type your question and send it to me.",
+                            reply_markup=remove_keyboard
+                        )
+                        return
+
+                    else:
+                        await bot.send_message(
+                            chat_id,
+                            "❌ Invalid or expired OTP. Please try again."
+                        )
+                        return
+
+            # Show login button only when no authentication
+            # and no OTP verification is pending
+            await share_phone_number(message)
             return
-            # Used to stop the typing loop
-        stop_typing = asyncio.Event()
+        else:
+            #stop typing
 
-        # Start typing immediately
-        typing_task = asyncio.create_task(
-            keep_typing(
-                bot=bot,
-                chat_id=chat_id,
-                stop_event=stop_typing,
-            )
-        )
+            stop_typing = asyncio.Event()
 
-        try:
-
-            logger.info(
-                "Telegram message user=%s chat=%s",
-                user_id,
-                chat_id,
+            # Start typing immediately
+            typing_task = asyncio.create_task(
+                keep_typing(
+                    bot=bot,
+                    chat_id=chat_id,
+                    stop_event=stop_typing,
+                )
             )
 
-            # Show "typing..."
-            await bot.send_chat_action(
-                chat_id=chat_id,
-                action="typing",
-            )
+            try:
 
-            # --------------------------------------------
-            # CALL YOUR LANGGRAPH/LANGCHAIN AGENT
-            # --------------------------------------------
+                logger.info(
+                    "Telegram message user=%s chat=%s",
+                    user_id,
+                    chat_id,
+                )
 
-            ai_response = await process_ai_message(
-                user_message=user_message,
-                user_id=user_id,
-                chat_id=chat_id,
-            )
+                # Show "typing..."
+                await bot.send_chat_action(
+                    chat_id=chat_id,
+                    action="typing",
+                )
 
-            # --------------------------------------------
-            # SEND RESPONSE BACK TO TELEGRAM
-            # --------------------------------------------
+                # --------------------------------------------
+                # CALL YOUR LANGGRAPH/LANGCHAIN AGENT
+                # --------------------------------------------
 
-            for chunk in split_telegram_message(ai_response):
+                ai_response = await process_ai_message(
+                    user_message=user_message,
+                    user_id=user_id,
+                    chat_id=chat_id
+                )
+
+                # --------------------------------------------
+                # SEND RESPONSE BACK TO TELEGRAM
+                # --------------------------------------------
+
+                for chunk in split_telegram_message(ai_response):
+                    await bot.send_message(
+                        chat_id=chat_id,
+                        text=chunk,
+                        parse_mode="HTML",
+                    )
+
+            except Exception:
+
+                logger.exception(
+                    "Error processing Telegram AI message"
+                )
 
                 await bot.send_message(
                     chat_id=chat_id,
-                    text=chunk,
-                    parse_mode="HTML",
+                    text=(
+                        "Sorry, I encountered an error while "
+                        "processing your request. Please try again."
+                    ),
                 )
 
-        except Exception:
+            finally:
 
-            logger.exception(
-                "Error processing Telegram AI message"
+                # ==============================================
+                # STOP TYPING
+                # ==============================================
+
+                stop_typing.set()
+
+                try:
+                    await typing_task
+                except asyncio.CancelledError:
+                    pass
+
+        # --------------------------------------------------
+        # PHOTO
+        # --------------------------------------------------
+
+    async def share_phone_number(message):
+
+        telegram_id = message.from_user.id
+        chat_id = message.chat.id
+
+        # Check authentication status
+        auth_user = await get_authenticated_user(telegram_id)
+
+        # If authenticated, do not display login button
+        if auth_user:
+            print(f"User {telegram_id} already authenticated")
+            return
+
+        # If OTP is pending, do not display login button again
+        otp_pending = await redis_client.exists(
+            f"otp_attempts:{telegram_id}"
+        )
+
+        if otp_pending:
+            print(f"OTP verification pending for {telegram_id}")
+            return
+
+        keyboard = types.ReplyKeyboardMarkup(
+            resize_keyboard=True,
+            one_time_keyboard=True,
+            row_width=1
+        )
+
+        button = types.KeyboardButton(
+            text="🔐 Secure Login",
+            request_contact=True
+        )
+
+        keyboard.add(button)
+
+        await bot.send_message(
+            chat_id=chat_id,
+            text="Please click login button",
+            reply_markup=keyboard
+        )
+
+    @bot.message_handler(content_types=["contact"])
+    async def receive_contact(message):
+
+        contact = message.contact
+
+        telegram_id = message.from_user.id
+        contact_user_id = contact.user_id
+
+        # Ensure the contact belongs to the sender
+        if contact_user_id != telegram_id:
+            await bot.send_message(
+                message.chat.id,
+                "Please click the button bellow to login."
             )
+            return
+
+        phone_number = contact.phone_number
+
+        # Normalize Kenyan phone numbers
+        cleaned = phone_number.replace(" ", "").replace("-", "")
+
+        if cleaned.startswith("0") and len(cleaned) == 10:
+            phone_number = "+254" + cleaned[1:]
+        elif cleaned.startswith("254"):
+            phone_number = "+" + cleaned
+        else:
+            phone_number = cleaned
+
+        print(f"phone_number: {phone_number}")
+        print("Phone number received successfully")
+
+        # validate the phone number if registered in our system
+        number_valid = await  verify_phone_number(phone_number)
+
+        if not number_valid:
 
             await bot.send_message(
-                chat_id=chat_id,
-                text=(
-                    "Sorry, I encountered an error while "
-                    "processing your request. Please try again."
-                ),
+               message.chat.id,
+               "Phone number not registered. Please contact our facility through 07******13.",
+               #reply_markup=types.ReplyKeyboardRemove()
             )
+            return
 
-        finally:
-
-            #==============================================
-            # STOP TYPING
-            # ==============================================
-
-            stop_typing.set()
-
-            try:
-                await typing_task
-            except asyncio.CancelledError:
-                pass
+        # Store phone temporarily in Redis
 
 
-    # --------------------------------------------------
-    # PHOTO
-    # --------------------------------------------------
+        # Generate OTP using your existing function
+        otp = await generate_otp(telegram_id)
+
+        # Send OTP via your SMS provider
+        #await send_sms(phone_number, otp)
+
+
+        await bot.send_message(
+            message.chat.id,
+            "A verification code has been sent to your phone. "
+            f"Please enter the 6-digit OTP :{otp}."
+        )
+
+
 
     @bot.message_handler(content_types=["photo"])
     async def handle_photo(message):
@@ -295,7 +445,6 @@ async def keep_typing(bot, chat_id: int, stop_event: asyncio.Event):
                 chat_id=chat_id,
                 action="typing",
             )
-
         except Exception:
             logger.exception(
                 "Failed to send Telegram typing action"

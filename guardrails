@@ -118,3 +118,64 @@ Backend verifies OTP
                          │
                          ▼
                 Coptic Knowledge
+
+
+   ============================================================================================================================================
+verification gate before any patient-specific tool or database query runs.
+A good flow is:
+Patient starts bot
+      ↓
+Bot asks patient to share their Telegram phone number
+      ↓
+Backend checks that phone number against patient database
+      ↓
+If matched, send OTP to the REGISTERED phone number
+      ↓
+Patient enters OTP
+      ↓
+Backend verifies OTP
+      ↓
+Create short-lived authenticated session
+      ↓
+Only then allow patient-specific tools
+      ↓
+Every tool verifies:
+Telegram user_id + patient_id + active session
+
+========================================
+AAuthentication
+======================================
+              TELEGRAM USER
+                    |
+                    v
+            Sends /start
+                    |
+                    v
+              FASTAPI SERVER
+                    |
+                    v
+          Check Telegram User ID
+                    |
+             +------+------+
+             |             |
+             v             v
+        Registered?     Not Registered
+             |             |
+             v             v
+       Check Session    Request Registration
+             |             |
+        +----+----+        |
+        |         |        v
+      Valid     Expired  Verify Phone/Email
+        |         |        |
+        v         v        v
+     Allow AI   Re-authenticate
+        |         |
+        v         v
+       AI CHAT <---+
+        |
+        v
+    OpenAI / Ollama
+        |
+        v
+   Response to Telegram

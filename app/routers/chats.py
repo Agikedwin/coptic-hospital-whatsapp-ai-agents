@@ -17,6 +17,7 @@ async def chat(request: schemas.ChatRequest) -> schemas.ChatResponse:
         messages = request.message,
         session_id = request.session_id,
         client_id = request.client_id,
+        message_source='api_call'
     )
     return schemas.ChatResponse(message = response, session_id=request.session_id)
 

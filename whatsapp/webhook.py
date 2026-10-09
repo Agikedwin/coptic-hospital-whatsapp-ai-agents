@@ -1,8 +1,12 @@
+from typing import Optional
 
 from fastapi import APIRouter, Request, HTTPException, Query, BackgroundTasks
 import asyncio
 
+from installer import sources
+
 from agent.agent import run_chat
+from memory.memory import AgentState
 from whatsapp.whatsapp_service import ( send_whatsapp_message,send_typing_indicator,keep_typing )
 
 from app import schemas
@@ -55,7 +59,7 @@ async def whatsapp_webhook(
 
 
 
-async def process_whatsapp_message(data: dict):
+async def process_whatsapp_message(data: dict, state: Optional[AgentState] = None,):
     # Extract messages update
     print("STARTED Processing WhatsApp messages")
 
@@ -79,6 +83,7 @@ async def process_whatsapp_message(data: dict):
         return
 
     messages = value["messages"]
+
 
     message = messages[0]
 
@@ -106,7 +111,8 @@ async def process_whatsapp_message(data: dict):
     user_text = [
         ChatMessages(
             role="user",
-            content=user_text
+            content=user_text,
+            message_source='whatsapp'
         )
     ]
 
@@ -137,7 +143,8 @@ async def process_whatsapp_message(data: dict):
 
             ChatMessages(
                 role="user",
-                content=user_text
+                content=user_text,
+                message_source='whatsapp'
             )
 
         ]
@@ -149,7 +156,8 @@ async def process_whatsapp_message(data: dict):
         response = await run_chat(
             messages=chat_messages,
             session_id=from_number,
-            client_id=from_number
+            client_id=from_number,
+            message_source= 'whatsapp'
         )
 
         print(
