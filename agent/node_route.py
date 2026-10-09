@@ -1,3 +1,4 @@
+import re
 from typing import  Literal, Any
 
 
@@ -7,21 +8,31 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Base
 
 from memory.sessions import get_sessions_memory, save_session
 from tool_calls.tool_call import TOOLS
-from utilty.utilities import SYSTEM_PROMPT, summary_model, model
+from utilty.utilities import SYSTEM_PROMPT, summary_model, model, TELEGRAM_FORMATTING_PROMPT, WHATSAPP_FORMATTING_PROMPT
 
 
 def agent_node(state: AgentState) -> dict[str, list[BaseMessage]]:
 
     memory_context = state["memory_context"]
 
+    content = state["messages"][0].content
+
+    match = re.search(r"message_source='([^']+)'", content)
+
+    message_source = match.group(1) if match else None
+
+    if message_source == "whatsapp":
+        formatting_prompt = WHATSAPP_FORMATTING_PROMPT
+    elif message_source == "telegram":
+        formatting_prompt = TELEGRAM_FORMATTING_PROMPT
+    else:
+        formatting_prompt = ""
     system_message = SystemMessage(
         content=SYSTEM_PROMPT.format(
-            memory_context=memory_context
-            if memory_context
-            else "No saved memory yet."
+            MESSAGE_FORMATTING_PROMPT=formatting_prompt,
+            memory_context=memory_context or "No saved memory yet.",
         )
     )
-
 
 
     response = model.bind_tools(TOOLS, tool_choice="auto").invoke(
@@ -30,7 +41,6 @@ def agent_node(state: AgentState) -> dict[str, list[BaseMessage]]:
             *state["messages"]
         ]
     )
-    print("AT tool calls ::::::::::::::::::::::::::::::::::::::::2")
 
     return {
         "messages": [response]

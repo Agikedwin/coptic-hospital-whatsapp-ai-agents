@@ -9,6 +9,7 @@ class AgentState(MessagesState):
     session_id: str
 
     memory_context: str
+    message_source: str
 
 
     # Supervisor decision

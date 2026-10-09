@@ -48,7 +48,7 @@ gh pr create \
   --base main \
   --head "$(git branch --show-current)" \
   --title "Whatsapp Typing indicator" \
-  --body "Added typing indicator to show while whatsapp is waiting for ai agent to run and return response."
+  --body "Integrating  telegram webhook chatbot that interacts with coptic ai agent complete"
   ================================================
 
   To merge your branch into main locally:

@@ -1,16 +1,18 @@
 # services/telegram_ai_service.py
 
-from typing import Any
+from typing import Any, Optional
 
 from agent.agent import run_chat
 from app import schemas
 from app.schemas import ChatMessages
+from memory.memory import AgentState
 
 
 async def process_ai_message(
     user_message: str,
     user_id: int,
     chat_id: int,
+    state: Optional[AgentState] = None,
 ) -> str:
     """
     Pass a Telegram message to the existing AI agent.
@@ -23,7 +25,8 @@ async def process_ai_message(
     user_text = [
         ChatMessages(
             role="user",
-            content=user_message
+            content=user_message,
+            message_source="telegram"
         )
     ]
 
@@ -31,19 +34,26 @@ async def process_ai_message(
 
         ChatMessages(
             role="user",
-            content=user_text
+            content=user_text,
+            message_source="telegram"
         )
 
     ]
+    if state is None:
+        state = {}
+    #Set the message source as telegram
+    state['message_source'] = 'telegram'
 
     # ====================================================
     # RUN AI AGENT
     # ====================================================
 
+
     response = await run_chat(
         messages=chat_messages,
         session_id=session_id,
-        client_id=session_id
+        client_id=session_id,
+        message_source = 'telegram'
     )
 
     result = schemas.ChatResponse(

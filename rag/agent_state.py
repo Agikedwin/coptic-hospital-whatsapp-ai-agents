@@ -15,10 +15,13 @@ load_dotenv()
 #llm = ChatGroq(model="gpt-5.6-luna", temperature=0,reasoning_effort="none") # only for hosted models
 #llm = ChatOpenAI(model="gpt-5.6-luna", temperature=0,reasoning_effort="none")
 #llm = get_llm(provider="openai", model="gpt-5.6-luna")
-llm = get_llm( provider="groq", model="openai/gpt-oss-120b")
 #llm = get_llm(provider="anthropic", model="claude-sonnet-4-6")
 #llm = get_llm(provider="openai", model="gpt-5.6-luna")
 #llm = get_llm(provider="gemini", model="gemini-3.8-flash")
+
+llm = get_llm( provider="groq", model="openai/gpt-oss-120b")
+
+#llm = get_llm( provider="ollama", model="qwen3:8b")
 
 
 
