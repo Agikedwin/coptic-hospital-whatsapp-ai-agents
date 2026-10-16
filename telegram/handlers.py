@@ -4,10 +4,11 @@ import logging
 
 from telebot.async_telebot import AsyncTeleBot
 
-from authentication.telegram_auth import get_authenticated_user, generate_otp, verify_otp, redis_client, create_session, \
+from authentication.redis_session_auth import get_authenticated_user, generate_otp, verify_otp, redis_client, create_session, \
     verify_phone_number
 from memory.memory import AgentState
 from telegram.telegram_ai_service import process_ai_message
+from utilty.phone_number_format import phone_number_types
 
 logger = logging.getLogger(__name__)
 import asyncio
@@ -263,19 +264,9 @@ def register_telegram_handlers(bot: AsyncTeleBot):
             )
             return
 
-        phone_number = contact.phone_number
-
         # Normalize Kenyan phone numbers
-        cleaned = phone_number.replace(" ", "").replace("-", "")
+        phone_number = phone_number_types(contact.phone_number)
 
-        if cleaned.startswith("0") and len(cleaned) == 10:
-            phone_number = "+254" + cleaned[1:]
-        elif cleaned.startswith("254"):
-            phone_number = "+" + cleaned
-        else:
-            phone_number = cleaned
-
-        print(f"phone_number: {phone_number}")
         print("Phone number received successfully")
 
         # validate the phone number if registered in our system
@@ -295,7 +286,6 @@ def register_telegram_handlers(bot: AsyncTeleBot):
 
         # Generate OTP using your existing function
         otp = await generate_otp(telegram_id)
-
         # Send OTP via your SMS provider
         #await send_sms(phone_number, otp)
 

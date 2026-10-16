@@ -82,11 +82,10 @@ Mask phone numbers, National ID, and other contact or identifying details with a
 
 
 Long-term memory:
+
 {memory_context}
 
-
 {MESSAGE_FORMATTING_PROMPT}
-
 
 """
 

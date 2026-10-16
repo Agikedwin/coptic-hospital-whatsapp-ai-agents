@@ -12,7 +12,8 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
-    text, DateTime,
+    text, DateTime, FetchedValue,Index
+
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -60,6 +61,209 @@ class EducationLevels(Base):
 
     __table_args__ = (
         UniqueConstraint("education_level", name="uq_education_levels_level"),
+    )
+
+
+from datetime import date, datetime
+
+from sqlalchemy import (
+    Integer,
+    String,
+    CHAR,
+    Date,
+    DateTime,
+    TIMESTAMP,
+    Index,
+    text,
+    FetchedValue,
+)
+
+from sqlalchemy.orm import Mapped, mapped_column
+
+
+
+class PatientFacilityMapping(Base):
+    __tablename__ = "patient_facility_mapping"
+
+    # =====================================================
+    # PRIMARY KEY
+    # =====================================================
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    # =====================================================
+    # PATIENT IDENTIFICATION
+    # =====================================================
+
+    patient_id: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    patient_uuid: Mapped[str | None] = mapped_column(
+        CHAR(38),
+        nullable=True,
+    )
+
+    # =====================================================
+    # PATIENT NAMES
+    # =====================================================
+
+    first_name: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+
+    middle_name: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+
+    last_name: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+
+    # =====================================================
+    # DEMOGRAPHICS
+    # =====================================================
+
+    gender: Mapped[str | None] = mapped_column(
+        String(10),
+        nullable=True,
+    )
+
+    date_of_birth: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True,
+    )
+
+    age: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    # =====================================================
+    # CONTACT INFORMATION
+    # =====================================================
+
+    phone_number: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+
+    alternative_phone_number: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+
+    # =====================================================
+    # FACILITY INFORMATION
+    # =====================================================
+
+    location_id: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    facility_name: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
+    # =====================================================
+    # PATIENT IDENTIFIERS
+    # Python attributes use snake_case.
+    # Database column names remain unchanged.
+    # =====================================================
+
+    openmrs_id_3: Mapped[str | None] = mapped_column(
+        "OpenMRS ID_3",
+        String(255),
+        nullable=True,
+    )
+
+    unique_patient_number: Mapped[str | None] = mapped_column(
+        "Unique Patient number",
+        String(255),
+        nullable=True,
+    )
+
+    unique_patient_identifier: Mapped[str | None] = mapped_column(
+        "Unique Patient Identifier",
+        String(255),
+        nullable=True,
+    )
+
+    national_id: Mapped[str | None] = mapped_column(
+        "National ID",
+        String(255),
+        nullable=True,
+    )
+
+    patient_clinic_number: Mapped[str | None] = mapped_column(
+        "Patient Clinic Number",
+        String(255),
+        nullable=True,
+    )
+
+    # =====================================================
+    # EXTRACTION INFORMATION
+    # =====================================================
+
+    extraction_date: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+    # =====================================================
+    # RECORD MANAGEMENT
+    # =====================================================
+
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP"),
+        server_onupdate=FetchedValue(),
+    )
+
+    # =====================================================
+    # INDEXES AND TABLE CONFIGURATION
+    # =====================================================
+
+    __table_args__ = (
+        Index("idx_patient_uuid", "patient_uuid"),
+        Index("idx_location_id", "location_id"),
+        Index("idx_phone_number", "phone_number"),
+        Index(
+            "idx_unique_patient_number",
+            "Unique Patient number",
+        ),
+        Index(
+            "idx_unique_patient_identifier",
+            "Unique Patient Identifier",
+        ),
+        Index("idx_national_id", "National ID"),
+        Index(
+            "idx_patient_clinic_number",
+            "Patient Clinic Number",
+        ),
+        Index("idx_extraction_date", "extraction_date"),
+        {
+            "mysql_engine": "InnoDB",
+            "mysql_charset": "utf8mb4",
+            "mysql_collate": "utf8mb4_unicode_ci",
+        },
     )
 
 
