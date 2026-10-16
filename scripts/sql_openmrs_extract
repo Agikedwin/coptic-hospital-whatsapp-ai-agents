@@ -1,0 +1,225 @@
+USE openmrs;
+
+-- =====================================================
+-- PATIENT DEMOGRAPHICS, SELECTED IDENTIFIERS,
+-- CONTACT INFORMATION AND FACILITY
+-- =====================================================
+
+SELECT
+    -- PATIENT IDENTIFICATION
+    p.patient_id AS patient_id,
+    per.uuid AS patient_uuid,
+
+    -- PATIENT NAMES
+    pn.given_name AS first_name,
+    pn.middle_name,
+    pn.family_name AS last_name,
+
+    -- DEMOGRAPHICS
+    per.gender,
+    per.birthdate AS date_of_birth,
+
+    TIMESTAMPDIFF(
+        YEAR,
+        per.birthdate,
+        CURDATE()
+    ) AS age,
+
+    -- CONTACT INFORMATION
+    contacts.phone_number,
+    contacts.alternative_phone_number,
+
+    -- FACILITY / LOCATION INFORMATION
+    ids.location_id,
+    loc.name AS facility_name,
+
+
+
+    -- =====================================================
+    -- SELECTED PATIENT IDENTIFIERS
+    -- =====================================================
+
+    ids.`OpenMRS ID_3`,
+    ids.`Unique Patient number`,
+    ids.`Unique Patient Identifier`,
+    ids.`National ID`,
+    ids.`Patient Clinic Number`,
+
+    -- EXTRACTION DATE
+    CURRENT_TIMESTAMP AS extraction_date
+
+FROM openmrs.patient p
+
+INNER JOIN openmrs.person per
+    ON p.patient_id = per.person_id
+
+-- =====================================================
+-- PATIENT NAMES
+-- =====================================================
+
+LEFT JOIN openmrs.person_name pn
+    ON pn.person_name_id = (
+        SELECT pn2.person_name_id
+        FROM openmrs.person_name pn2
+        WHERE pn2.person_id = p.patient_id
+          AND pn2.voided = 0
+        ORDER BY
+            pn2.preferred DESC,
+            pn2.person_name_id DESC
+        LIMIT 1
+    )
+
+-- =====================================================
+-- SELECTED IDENTIFIERS AND LOCATION
+-- =====================================================
+
+LEFT JOIN (
+
+    SELECT
+        pi.patient_id,
+
+        -- PREFERRED LOCATION ID
+        MAX(
+            CASE
+                WHEN pi.preferred = 1
+                THEN pi.location_id
+            END
+        ) AS location_id,
+
+
+        -- OpenMRS ID
+        GROUP_CONCAT(
+            DISTINCT CASE
+                WHEN pi.identifier_type = 3
+                THEN pi.identifier
+            END
+            ORDER BY pi.identifier
+            SEPARATOR ' | '
+        ) AS `OpenMRS ID_3`,
+
+        -- Unique Patient Number
+        GROUP_CONCAT(
+            DISTINCT CASE
+                WHEN pit.name = 'Unique Patient number'
+                THEN pi.identifier
+            END
+            ORDER BY pi.identifier
+            SEPARATOR ' | '
+        ) AS `Unique Patient number`,
+
+        -- Unique Patient Identifier
+        GROUP_CONCAT(
+            DISTINCT CASE
+                WHEN pit.name = 'Unique Patient Identifier'
+                THEN pi.identifier
+            END
+            ORDER BY pi.identifier
+            SEPARATOR ' | '
+        ) AS `Unique Patient Identifier`,
+
+        -- National ID
+        GROUP_CONCAT(
+            DISTINCT CASE
+                WHEN pit.name = 'National ID'
+                THEN pi.identifier
+            END
+            ORDER BY pi.identifier
+            SEPARATOR ' | '
+        ) AS `National ID`,
+
+        -- Patient Clinic Number
+        GROUP_CONCAT(
+            DISTINCT CASE
+                WHEN pit.name = 'Patient Clinic Number'
+                THEN pi.identifier
+            END
+            ORDER BY pi.identifier
+            SEPARATOR ' | '
+        ) AS `Patient Clinic Number`
+
+    FROM openmrs.patient_identifier pi
+
+    INNER JOIN openmrs.patient_identifier_type pit
+        ON pi.identifier_type =
+           pit.patient_identifier_type_id
+
+    WHERE pi.voided = 0
+
+    GROUP BY pi.patient_id
+
+) ids
+    ON p.patient_id = ids.patient_id
+
+-- =====================================================
+-- PHONE NUMBERS AND ALTERNATIVE PHONE NUMBERS
+-- =====================================================
+
+LEFT JOIN (
+
+    SELECT
+        patt.person_id,
+
+        -- PRIMARY PHONE NUMBER
+        MAX(
+            CASE
+                WHEN (
+                    LOWER(pat.name) LIKE '%phone%'
+                    OR LOWER(pat.name) LIKE '%mobile%'
+                    OR LOWER(pat.name) LIKE '%telephone%'
+                    OR LOWER(pat.name) LIKE '%contact number%'
+                )
+                AND LOWER(pat.name) NOT LIKE '%alternative%'
+                AND LOWER(pat.name) NOT LIKE '%alternate%'
+                AND LOWER(pat.name) NOT LIKE '%secondary%'
+                AND LOWER(pat.name) NOT LIKE '%other%'
+                THEN NULLIF(TRIM(patt.value), '')
+            END
+        ) AS phone_number,
+
+        -- ALTERNATIVE PHONE NUMBER
+        MAX(
+            CASE
+                WHEN (
+                    LOWER(pat.name) LIKE '%phone%'
+                    OR LOWER(pat.name) LIKE '%mobile%'
+                    OR LOWER(pat.name) LIKE '%telephone%'
+                    OR LOWER(pat.name) LIKE '%contact number%'
+                )
+                AND (
+                    LOWER(pat.name) LIKE '%alternative%'
+                    OR LOWER(pat.name) LIKE '%alternate%'
+                    OR LOWER(pat.name) LIKE '%secondary%'
+                    OR LOWER(pat.name) LIKE '%other%'
+                )
+                THEN NULLIF(TRIM(patt.value), '')
+            END
+        ) AS alternative_phone_number
+
+    FROM openmrs.person_attribute patt
+
+    INNER JOIN openmrs.person_attribute_type pat
+        ON patt.person_attribute_type_id =
+           pat.person_attribute_type_id
+
+    WHERE patt.voided = 0
+
+    GROUP BY patt.person_id
+
+) contacts
+    ON p.patient_id = contacts.person_id
+
+-- =====================================================
+-- FACILITY INFORMATION
+-- =====================================================
+
+LEFT JOIN openmrs.location loc
+    ON ids.location_id = loc.location_id
+
+-- =====================================================
+-- ACTIVE PATIENTS ONLY
+-- =====================================================
+
+WHERE p.voided = 0
+  AND per.voided = 0
+
+ORDER BY p.patient_id;

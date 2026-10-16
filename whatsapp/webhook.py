@@ -6,7 +6,9 @@ import asyncio
 from installer import sources
 
 from agent.agent import run_chat
+from authentication.redis_session_auth import verify_phone_number
 from memory.memory import AgentState
+from utilty.phone_number_format import phone_number_types
 from whatsapp.whatsapp_service import ( send_whatsapp_message,send_typing_indicator,keep_typing )
 
 from app import schemas
@@ -116,6 +118,24 @@ async def process_whatsapp_message(data: dict, state: Optional[AgentState] = Non
         )
     ]
 
+
+
+    #==================================
+    #Add the possibility functionality to only chat with the authorized whatsapp number
+    #==================================
+
+    normalize_number = phone_number_types(from_number)
+    verify_number = await verify_phone_number(normalize_number)
+    if not verify_number:
+        whatsapp_response = (
+            await send_whatsapp_message(
+                to=from_number,
+                body='Phone number not registered. Please contact our facility through 07******13.'
+            )
+        )
+        return whatsapp_response
+
+
     #response = await  run_chat(messages=user_text, session_id=from_number, client_id=from_number)
 
 
@@ -188,6 +208,8 @@ async def process_whatsapp_message(data: dict, state: Optional[AgentState] = Non
         # ====================================================
         # SEND AI RESPONSE
         # ====================================================
+
+
 
         whatsapp_response = (
             await send_whatsapp_message(

@@ -1,0 +1,123 @@
+-- =====================================================
+-- STEP 1: CREATE DATABASE
+-- =====================================================
+
+CREATE DATABASE IF NOT EXISTS family_planning_fp
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE family_planning_fp;
+
+-- =====================================================
+-- STEP 2: CREATE PATIENT DEMOGRAPHICS TABLE
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS patient_facility_mapping (
+
+    -- =================================================
+    -- PATIENT IDENTIFICATION
+    -- =================================================
+
+    id int AUTO_INCREMENT
+
+    patient_id INT NOT NULL,
+
+    patient_uuid CHAR(38) DEFAULT NULL,
+
+    -- =================================================
+    -- PATIENT NAMES
+    -- =================================================
+
+    first_name VARCHAR(100) DEFAULT NULL,
+
+    middle_name VARCHAR(100) DEFAULT NULL,
+
+    last_name VARCHAR(100) DEFAULT NULL,
+
+    -- =================================================
+    -- DEMOGRAPHICS
+    -- =================================================
+
+    gender VARCHAR(10) DEFAULT NULL,
+
+    date_of_birth DATE DEFAULT NULL,
+
+    age INT DEFAULT NULL,
+
+    -- =================================================
+    -- CONTACT INFORMATION
+    -- =================================================
+
+    phone_number VARCHAR(30) DEFAULT NULL,
+
+    alternative_phone_number VARCHAR(30) DEFAULT NULL,
+
+    -- =================================================
+    -- FACILITY INFORMATION
+    -- =================================================
+
+    location_id INT DEFAULT NULL,
+
+    facility_name VARCHAR(255) DEFAULT NULL,
+
+    -- =================================================
+    -- PATIENT IDENTIFIERS
+    -- =================================================
+
+    `OpenMRS ID_3` VARCHAR(255) DEFAULT NULL,
+
+    `Unique Patient number` VARCHAR(255) DEFAULT NULL,
+
+    `Unique Patient Identifier` VARCHAR(255) DEFAULT NULL,
+
+    `National ID` VARCHAR(255) DEFAULT NULL,
+
+    `Patient Clinic Number` TEXT DEFAULT NULL,
+
+    -- =================================================
+    -- EXTRACTION INFORMATION
+    -- =================================================
+
+    extraction_date DATETIME DEFAULT NULL,
+
+    -- =================================================
+    -- RECORD MANAGEMENT
+    -- =================================================
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    -- =================================================
+    -- PRIMARY KEY
+    -- =================================================
+
+    PRIMARY KEY (id),
+
+    -- =================================================
+    -- INDEXES
+    -- =================================================
+
+    INDEX idx_patient_uuid (patient_uuid),
+
+    INDEX idx_location_id (location_id),
+
+    INDEX idx_phone_number (phone_number),
+
+    INDEX idx_unique_patient_number
+        (`Unique Patient number`),
+
+    INDEX idx_unique_patient_identifier
+        (`Unique Patient Identifier`),
+
+    INDEX idx_national_id
+        (`National ID`),
+
+
+    INDEX idx_extraction_date (extraction_date)
+
+)
+ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;

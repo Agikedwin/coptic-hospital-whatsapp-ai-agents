@@ -5,7 +5,10 @@ from typing import Any, Optional
 from agent.agent import run_chat
 from app import schemas
 from app.schemas import ChatMessages
+from mapped_facilities.patient_facility import get_patient_location
 from memory.memory import AgentState
+from sqlalchemy.orm import Session
+
 
 
 async def process_ai_message(

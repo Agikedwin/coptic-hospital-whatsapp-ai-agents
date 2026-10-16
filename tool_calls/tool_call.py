@@ -136,9 +136,6 @@ async def get_patient_hiv_defaulter_tracing():
     """
     return await api_patient_hiv_defaulter_tracing()
 
-
-
-
 @tool
 async def get_family_planning_client(client_id: int) -> str:
     """Use client get API to find the client receiving family planning by client id"""

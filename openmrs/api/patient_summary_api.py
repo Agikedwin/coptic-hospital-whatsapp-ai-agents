@@ -165,8 +165,7 @@ async  def api_patient_hiv_defaulter_tracing():
 
 async def api_patient_hiv_hts_testing_details():
     """
-    hts_testing_details
-    """
+    hts_testing_details    """
     print(
         "++++++++++++++++++++++++++++++++++++++++++++++api_patient_hiv_hts_testing_details++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     result = await kemr.patient_hiv_hts_testing_details()

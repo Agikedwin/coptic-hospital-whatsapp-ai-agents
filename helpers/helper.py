@@ -21,6 +21,7 @@ def _content_to_text(content: Any) -> str:
         return "\n".join(piece for piece in pieces if piece)
     return str(content)
 
+
 def _to_langchain_messages(messages: list[ChatMessages]) -> list[BaseMessage]:
     print("AT  _to_langchain_messages |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| ", messages)
     converted: list[ChatMessage] = []

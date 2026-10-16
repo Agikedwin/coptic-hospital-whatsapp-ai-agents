@@ -2,7 +2,6 @@ import os
 import secrets
 import hashlib
 import hmac
-from telebot import types
 
 from dotenv import load_dotenv
 from redis.asyncio import  Redis
@@ -85,7 +84,6 @@ async def get_authenticated_user(telegram_id):
     user_id = await redis_client.get(
         f"auth:telegram:{telegram_id}"
     )
-
     if user_id:
         print(
             f"User authenticated successfully | "
@@ -104,16 +102,14 @@ async def get_authenticated_user(telegram_id):
         return False
 
 async def verify_phone_number(phone_number):
-    #retrieve phone numbers from the db
+
     db_numbers = ['+254717450644', '+254780698944']
 
-    for number in db_numbers:
-        if number == phone_number:
-            return True
-        else:
-            return False
+    is_verified = phone_number in db_numbers
 
-    return False
+    print(f"Phone: {phone_number}, Verified: {is_verified}")
+
+    return is_verified
 
 
 

@@ -6,7 +6,7 @@ https://console.groq.com/keys
 https://aistudio.google.com/api-keys?project=gen-lang-client-0914965680
 
 git status
-git checkout -b my-branch-name
+git checkout -b coptic-ai-agent
 git add .
 git commit -m "Update project"
 
